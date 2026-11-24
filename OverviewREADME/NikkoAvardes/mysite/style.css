@@ -1,0 +1,133 @@
+/* Убираем заводские отступы браузера */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	/* Важно: отступы не будут раздувать размеры блоков */
+}
+
+body {
+	font-family: 'Arial', sans-serif;
+	/* Пока простой шрифт, позже подключим красивый */
+	background-color: #1a1a1a;
+	/* Темный фон для контраста */
+	color: #ffffff;
+	/* Белый текст */
+	overflow-x: hidden;
+	/* Защита от горизонтальной прокрутки */
+}
+
+.split-container {
+	display: grid;
+	/* Включаем режим сетки */
+	grid-template-columns: 1fr 1fr;
+	/* Делим на 2 равные части (1 fraction / 1 fraction) */
+	height: 100vh;
+	/* Высота блока = 100% высоты экрана (Viewport Height) */
+	width: 100%;
+}
+
+/* Общие настройки для левой и правой части */
+.left-side,
+.right-side {
+	display: flex;
+	/* Включаем гибкий контейнер */
+	justify-content: center;
+	/* Выравнивание по горизонтали (центр) */
+	align-items: center;
+	/* Выравнивание по вертикали (центр) */
+	padding: 2rem;
+	/* Внутренние отступы, чтобы контент не прилипал к краям */
+}
+
+/* Дополнительно для правой части (текст должен идти сверху вниз) */
+.right-side {
+	flex-direction: column;
+	/* Выстраиваем элементы в столбик */
+	align-items: flex-start;
+	/* Текст выравниваем по левому краю, а не по центру */
+}
+
+.tilt-card {
+	width: 100%;
+	/* Карточка занимает всю ширину колонки... */
+	max-width: 400px;
+	/* ...но не больше 400 пикселей */
+	aspect-ratio: 3/4;
+	/* Задаем пропорции (как фото 3x4) */
+	border-radius: 20px;
+	/* Скругленные углы */
+	overflow: hidden;
+	/* Обрезаем картинку, если она вылезает за углы */
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+	/* Тень для глубины */
+}
+
+.tilt-card img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	/* Картинка заполняет блок, обрезая лишнее, не сплющиваясь */
+}
+
+h1 {
+	font-size: 3rem;
+	/* Крупный заголовок */
+	margin-bottom: 1rem;
+	/* Отступ снизу */
+	line-height: 1.2;
+}
+
+p {
+	font-size: 1.2rem;
+	color: #cccccc;
+	/* Чуть серый текст для меньшего акцента */
+	margin-bottom: 2rem;
+	max-width: 500px;
+	/* Чтобы строка не была слишком длинной (удобнее читать) */
+}
+
+/* Стили для кнопок */
+.btn {
+	display: inline-block;
+	padding: 12px 30px;
+	background: #ffffff;
+	color: #000000;
+	text-decoration: none;
+	/* Убираем подчеркивание ссылки */
+	border-radius: 30px;
+	/* Овальная форма */
+	font-weight: bold;
+	margin-right: 15px;
+	/* Расстояние между кнопками */
+	transition: transform 0.3s;
+	/* Плавность анимации */
+}
+
+.btn:hover {
+	transform: translateY(-3px);
+	/* Легкий подскок при наведении */
+	background: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+	.split-container {
+		grid-template-columns: 1fr;
+		/* Одна колонка вместо двух */
+		height: auto;
+		/* Высота не фиксирована, разрешаем скролл */
+	}
+
+	.left-side {
+		height: 50vh;
+		/* Картинка на пол-экрана */
+		padding-top: 50px;
+	}
+
+	.right-side {
+		padding: 40px 20px;
+		align-items: center;
+		/* На мобильном текст красивее по центру */
+		text-align: center;
+	}
+}

@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+def uppercase(s):
+
+    str_maj = ""
+    for i in s:
+        if ord(i) >= 97 and ord(i) <= 122:
+            i = chr(ord(i) - 32)
+            str_maj += i
+        else:
+            str_maj += i
+    print("{}".format(str_maj))

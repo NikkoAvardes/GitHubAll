@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Программа тренировок</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Serif+Display:ital@0;1&display=swap"
+		rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--bg: #f7f5f2;
+			--surface: #ffffff;
+			--ink: #1c1c1e;
+			--ink2: #48484a;
+			--ink3: #98989a;
+			--line: #e8e4de;
+			--warm: #f0ede8;
+
+			/* Muted accent per module */
+			--c1: #3d6b8f;
+			/* back    - slate blue   */
+			--c2: #8f5a3d;
+			/* chest   - terracotta   */
+			--c3: #3d7a5a;
+			/* legs    - sage green   */
+			--c4: #7a5a3d;
+			/* shoulders - warm brown */
+			--c5: #5c4a7a;
+			/* arms    - dusty violet */
+		}
+
+		body {
+			background: var(--bg);
+			font-family: 'DM Sans', sans-serif;
+			color: var(--ink);
+			min-height: 100vh;
+		}
+
+		/* ── HEADER ── */
+		.page-header {
+			background: var(--ink);
+			padding: 52px 48px 44px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.page-header::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(ellipse 80% 100% at 80% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+			pointer-events: none;
+		}
+
+		.header-inner {
+			max-width: 1080px;
+			margin: 0 auto;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			flex-wrap: wrap;
+			gap: 24px;
+		}
+
+		.header-eyebrow {
+			font-size: 11px;
+			letter-spacing: 4px;
+			text-transform: uppercase;
+			color: rgba(255, 255, 255, 0.35);
+			margin-bottom: 10px;
+		}
+
+		.header-title {
+			font-family: 'DM Serif Display', serif;
+			font-size: clamp(44px, 7vw, 76px);
+			color: #fff;
+			line-height: 0.95;
+			letter-spacing: -1px;
+		}
+
+		.header-title em {
+			font-style: italic;
+			color: rgba(255, 255, 255, 0.45);
+		}
+
+		.header-stats {
+			display: flex;
+			gap: 36px;
+		}
+
+		.hstat {
+			text-align: right;
+		}
+
+		.hstat-n {
+			font-family: 'DM Serif Display', serif;
+			font-size: 36px;
+			color: #fff;
+			line-height: 1;
+		}
+
+		.hstat-l {
+			font-size: 10px;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: rgba(255, 255, 255, 0.3);
+			margin-top: 2px;
+		}
+
+		/* ── WARMUP ── */
+		.warmup {
+			background: #fff;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.warmup-inner {
+			max-width: 1080px;
+			margin: 0 auto;
+			padding: 32px 48px;
+			display: grid;
+			grid-template-columns: 160px 1fr 1fr;
+			gap: 48px;
+			align-items: start;
+		}
+
+		.warmup-label {
+			padding-top: 4px;
+		}
+
+		.warmup-tag {
+			display: inline-block;
+			background: var(--ink);
+			color: #fff;
+			font-size: 9px;
+			font-weight: 600;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			padding: 6px 12px;
+			border-radius: 4px;
+			margin-bottom: 8px;
+		}
+
+		.warmup-desc {
+			font-size: 12px;
+			color: var(--ink3);
+			line-height: 1.6;
+		}
+
+		.warmup-col h4 {
+			font-size: 10px;
+			font-weight: 600;
+			letter-spacing: 3px;
+			text-transform: uppercase;
+			color: var(--ink3);
+			margin-bottom: 14px;
+		}
+
+		.warmup-col ul {
+			list-style: none;
+		}
+
+		.warmup-col ul li {
+			display: flex;
+			gap: 12px;
+			font-size: 13px;
+			color: var(--ink2);
+			padding: 7px 0;
+			border-bottom: 1px solid var(--line);
+			line-height: 1.45;
+		}
+
+		.warmup-col ul li:last-child {
+			border-bottom: none;
+		}
+
+		.warmup-col ul li .dot {
+			width: 5px;
+			height: 5px;
+			border-radius: 50%;
+			background: var(--ink3);
+			margin-top: 6px;
+			flex-shrink: 0;
+		}
+
+		/* ── CONTENT ── */
+		.content {
+			max-width: 1080px;
+			margin: 0 auto;
+			padding: 48px 48px 64px;
+			display: flex;
+			flex-direction: column;
+			gap: 28px;
+		}
+
+		/* ── MODULE CARD ── */
+		.module {
+			background: var(--surface);
+			border-radius: 24px;
+			overflow: hidden;
+			display: grid;
+			grid-template-columns: 280px 1fr;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.06);
+			animation: rise .55s cubic-bezier(.22, 1, .36, 1) both;
+			transition: box-shadow 0.3s ease;
+		}
+
+		.module:hover {
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 16px 48px rgba(0, 0, 0, 0.10);
+		}
+
+		.module:nth-child(1) {
+			animation-delay: .06s
+		}
+
+		.module:nth-child(2) {
+			animation-delay: .12s
+		}
+
+		.module:nth-child(3) {
+			animation-delay: .18s
+		}
+
+		.module:nth-child(4) {
+			animation-delay: .24s
+		}
+
+		.module:nth-child(5) {
+			animation-delay: .30s
+		}
+
+		@keyframes rise {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* LEFT - anatomy panel */
+		.mod-left {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 36px 28px 28px;
+			gap: 20px;
+			overflow: hidden;
+		}
+
+		.mod-left::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: var(--panel-bg);
+		}
+
+		.mod-left>* {
+			position: relative;
+			z-index: 1;
+		}
+
+		.mod-num {
+			position: absolute;
+			top: 18px;
+			left: 22px;
+			z-index: 1;
+			font-size: 10px;
+			font-weight: 500;
+			letter-spacing: 3px;
+			color: var(--panel-ink);
+			opacity: 0.4;
+		}
+
+		.mod-illustration {
+			width: 260px;
+			height: auto;
+			aspect-ratio: 280 / 260;
+			object-fit: cover;
+			border-radius: 12px;
+			filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.08));
+		}
+
+
+		/* RIGHT - exercises */
+		.mod-right {
+			padding: 36px 40px;
+			border-left: 1px solid var(--line);
+			display: flex;
+			flex-direction: column;
+		}
+
+		.mod-header {
+			display: flex;
+			align-items: baseline;
+			gap: 14px;
+			margin-bottom: 28px;
+			padding-bottom: 22px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.mod-title {
+			font-family: 'DM Serif Display', serif;
+			font-size: 34px;
+			line-height: 1;
+			color: var(--accent);
+		}
+
+		.mod-sub {
+			font-size: 13px;
+			color: var(--ink3);
+			font-weight: 300;
+		}
+
+		/* Table */
+		.ex-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.ex-table thead th {
+			font-size: 9px;
+			font-weight: 600;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: var(--ink3);
+			padding: 0 12px 12px;
+			text-align: center;
+		}
+
+		.ex-table thead th:first-child {
+			text-align: left;
+			padding-left: 0;
+		}
+
+		.ex-table tbody tr {
+			border-top: 1px solid var(--line);
+			transition: background .18s;
+		}
+
+		.ex-table tbody tr:hover {
+			background: var(--warm);
+		}
+
+		.ex-table td {
+			padding: 14px 12px;
+			vertical-align: middle;
+			text-align: center;
+		}
+
+		.ex-table td:first-child {
+			text-align: left;
+			padding-left: 0;
+		}
+
+		.ex-name {
+			font-size: 14px;
+			font-weight: 500;
+			color: var(--ink);
+			line-height: 1.3;
+		}
+
+		.ex-note {
+			font-size: 11.5px;
+			color: var(--ink3);
+			font-weight: 300;
+			margin-top: 3px;
+		}
+
+		.stat {
+			font-family: 'DM Serif Display', serif;
+			font-size: 20px;
+			color: var(--ink);
+			line-height: 1;
+		}
+
+		.stat-sub {
+			font-size: 9px;
+			letter-spacing: 1.5px;
+			text-transform: uppercase;
+			color: var(--ink3);
+			margin-top: 2px;
+		}
+
+		.rest-chip {
+			display: inline-block;
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 11.5px;
+			font-weight: 500;
+			background: var(--chip-bg);
+			color: var(--accent);
+			border: 1px solid var(--chip-border);
+		}
+
+		/* ── PER-MODULE THEMING ── */
+		.m1 {
+			--accent: var(--c1);
+			--panel-bg: linear-gradient(145deg, #eef3f8 0%, #e4edf5 100%);
+			--panel-ink: #2a4a65;
+			--chip-bg: rgba(61, 107, 143, 0.07);
+			--chip-border: rgba(61, 107, 143, 0.2);
+		}
+
+		.m2 {
+			--accent: var(--c2);
+			--panel-bg: linear-gradient(145deg, #f8f0eb 0%, #f2e6de 100%);
+			--panel-ink: #6b3a20;
+			--chip-bg: rgba(143, 90, 61, 0.07);
+			--chip-border: rgba(143, 90, 61, 0.2);
+		}
+
+		.m3 {
+			--accent: var(--c3);
+			--panel-bg: linear-gradient(145deg, #eaf3ef 0%, #dff0e8 100%);
+			--panel-ink: #254d3a;
+			--chip-bg: rgba(61, 122, 90, 0.07);
+			--chip-border: rgba(61, 122, 90, 0.2);
+		}
+
+		.m4 {
+			--accent: var(--c4);
+			--panel-bg: linear-gradient(145deg, #f5ede4 0%, #ede4d8 100%);
+			--panel-ink: #5a3d20;
+			--chip-bg: rgba(122, 90, 61, 0.07);
+			--chip-border: rgba(122, 90, 61, 0.2);
+		}
+
+		.m5 {
+			--accent: var(--c5);
+			--panel-bg: linear-gradient(145deg, #eeebf5 0%, #e6e0f2 100%);
+			--panel-ink: #3a2e5a;
+			--chip-bg: rgba(92, 74, 122, 0.07);
+			--chip-border: rgba(92, 74, 122, 0.2);
+		}
+
+
+		/* ── EXERCISE INTERACTION ── */
+		.ex-table tbody tr {
+			cursor: pointer;
+		}
+
+		.ex-table tbody tr:focus-within,
+		.ex-table tbody tr:hover {
+			background: var(--warm);
+		}
+
+		.ex-trigger {
+			all: unset;
+			display: block;
+			width: 100%;
+			cursor: pointer;
+		}
+
+		.ex-trigger:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: 3px;
+			border-radius: 6px;
+		}
+
+		.exercise-modal {
+			position: fixed;
+			inset: 0;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			padding: 24px;
+			background: rgba(20, 20, 24, 0.6);
+			z-index: 40;
+		}
+
+		.exercise-modal.open {
+			display: flex;
+		}
+
+		.exercise-modal-card {
+			width: min(920px, 100%);
+			max-height: 90vh;
+			overflow: auto;
+			background: #fff;
+			border-radius: 20px;
+			box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+			padding: 20px;
+		}
+
+		.exercise-modal-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 14px;
+		}
+
+		.exercise-modal-title {
+			font-family: 'DM Serif Display', serif;
+			font-size: clamp(26px, 4vw, 34px);
+			line-height: 1;
+		}
+
+		.exercise-modal-close {
+			border: 1px solid var(--line);
+			background: #fff;
+			border-radius: 999px;
+			width: 36px;
+			height: 36px;
+			font-size: 20px;
+			line-height: 1;
+			cursor: pointer;
+		}
+
+		.exercise-modal-grid {
+			display: grid;
+			grid-template-columns: minmax(280px, 1.15fr) 1fr;
+			gap: 18px;
+		}
+
+		.exercise-modal-image {
+			width: 100%;
+			border-radius: 14px;
+			border: 1px solid var(--line);
+			background: #f3f1ec;
+		}
+
+		.exercise-modal-info {
+			border: 1px solid var(--line);
+			border-radius: 14px;
+			padding: 14px;
+			background: #fdfcf9;
+		}
+
+		.exercise-modal-info p {
+			font-size: 14px;
+			line-height: 1.45;
+			color: var(--ink2);
+			margin-bottom: 10px;
+		}
+
+		.exercise-kpis {
+			display: flex;
+			gap: 12px;
+			flex-wrap: wrap;
+			margin: 10px 0 14px;
+		}
+
+		.exercise-kpi {
+			border: 1px solid var(--line);
+			border-radius: 12px;
+			padding: 8px 10px;
+			background: #fff;
+			min-width: 110px;
+		}
+
+		.exercise-kpi-label {
+			font-size: 10px;
+			letter-spacing: 1.4px;
+			text-transform: uppercase;
+			color: var(--ink3);
+		}
+
+		.exercise-kpi-value {
+			font-family: 'DM Serif Display', serif;
+			font-size: 24px;
+			line-height: 1.1;
+			color: var(--ink);
+		}
+
+		/* ── RESPONSIVE ── */
+		@media (max-width: 720px) {
+			body {
+				font-size: 14px;
+				overflow-x: hidden;
+			}
+
+			.header-inner {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+			}
+
+			.header-title {
+				font-size: clamp(32px, 9vw, 40px);
+			}
+
+			.header-stats {
+				gap: 20px;
+			}
+
+			.hstat-n {
+				font-size: 26px;
+			}
+
+			.module {
+				grid-template-columns: 1fr;
+			}
+
+			.mod-left {
+				flex-direction: row;
+				align-items: center;
+				gap: 16px;
+				padding: 20px 16px;
+			}
+
+			.mod-illustration {
+				width: 80px;
+			}
+
+			.mod-right {
+				border-left: none;
+				border-top: 1px solid var(--line);
+				padding: 20px 16px 24px;
+			}
+
+			.mod-title {
+				font-size: 26px;
+			}
+
+			.ex-name {
+				font-size: 13px;
+			}
+
+			.ex-table td {
+				padding: 10px 8px;
+			}
+
+			.warmup-inner {
+				grid-template-columns: 1fr;
+				gap: 24px;
+				padding: 20px 16px;
+			}
+
+			.content {
+				padding: 24px 16px 40px;
+			}
+
+			.page-header {
+				padding: 28px 16px 24px;
+			}
+
+			.exercise-modal-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.page-footer {
+				padding: 20px 16px 28px !important;
+				margin: 0 16px !important;
+			}
+
+			.exercise-modal-card {
+				width: 100%;
+				max-height: 100vh;
+				border-radius: 0;
+			}
+		}
+
+		@media (max-width: 430px) {
+			.header-title {
+				font-size: 30px;
+			}
+
+			.hstat-n {
+				font-size: 22px;
+			}
+
+			.exercise-modal-head {
+				flex-direction: row;
+				align-items: center;
+			}
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<!-- HEADER -->
+
+	<div class="page-header">
+		<div class="header-inner">
+			<div>
+				<div class="header-eyebrow">Персональная программа</div>
+				<div class="header-title">Тело<br><em>в движении</em></div>
+			</div>
+			<div class="header-stats">
+				<div class="hstat">
+					<div class="hstat-n">5</div>
+					<div class="hstat-l">Модулей</div>
+				</div>
+				<div class="hstat">
+					<div class="hstat-n">23</div>
+					<div class="hstat-l">Упражнений</div>
+				</div>
+				<div class="hstat">
+					<div class="hstat-n">~60</div>
+					<div class="hstat-l">Минут</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- WARMUP -->
+
+	<div class="warmup">
+		<div class="warmup-inner">
+			<div class="warmup-label">
+				<div class="warmup-tag">Разминка</div>
+				<p class="warmup-desc">Обязательно перед каждой тренировкой. 10–15 минут.</p>
+			</div>
+			<div class="warmup-col">
+				<h4>МФР — Миофасциальный релиз</h4>
+				<ul>
+					<li><span class="dot"></span>Прокатка ягодиц на ролле или теннисном мяче — 2 мин / сторону</li>
+					<li><span class="dot"></span>Прокатка передней поверхности бедра — 1–2 мин / ногу</li>
+					<li><span class="dot"></span>Прокатка грудного отдела спины (поясницу не трогать)</li>
+				</ul>
+			</div>
+			<div class="warmup-col">
+				<h4>Активация и суставная гимнастика</h4>
+				<ul>
+					<li><span class="dot"></span>«Кошка-Корова» на четвереньках — 15 повт., плавно</li>
+					<li><span class="dot"></span>Ягодичный мост без веса — 3 × 15, пауза 2 сек вверху</li>
+					<li><span class="dot"></span>Выпады с растяжкой подвздошно-поясничной — 30 сек / ногу</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<!-- CONTENT -->
+	<!--
+		Картинки для боковой колонки модулей (анатомия → ваш URL):
+		ищите в каждом модуле комментарий «Картинка модуля (…» и тег <img class="mod-illustration" …>.
+		Замените в этом теге значение атрибута src на полный URL файла (jpg, png, webp, gif).
+	-->
+
+	<div class="content">
+
+		<!-- ════════════════════ MODULE 1 – BACK ════════════════════ -->
+
+		<div class="module m1">
+			<div class="mod-left">
+				<div class="mod-num">01 / 05</div>
+
+				<!-- Картинка модуля (01 — Спина): замените значение src у тега img на URL вашей иллюстрации -->
+				<img class="mod-illustration" src="image/BakcMuscle.jpg" alt="Иллюстрация модуля: спина" loading="lazy"
+					decoding="async" />
+
+			</div>
+
+			<div class="mod-right">
+				<div class="mod-header">
+					<div class="mod-title">Спина</div>
+					<div class="mod-sub">Широчайшие и ромбовидные мышцы</div>
+				</div>
+				<table class="ex-table">
+					<thead>
+						<tr>
+							<th>Упражнение</th>
+							<th>Подх.</th>
+							<th>Повт.</th>
+							<th>Отдых</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="ex-name">Подтягивания в гравитроне</div>
+								<div class="ex-note">или классические подтягивания</div>
+							</td>
+							<td>
+								<div class="stat">4</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">8–12</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">90 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Тяга верхнего блока к груди</div>
+								<div class="ex-note">узкий параллельный хват</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Тяга нижнего блока к поясу</div>
+								<div class="ex-note">сидя, спина прямая, без рывков</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Пуловер с канатной рукоятью</div>
+								<div class="ex-note">в кроссовере стоя</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- ════════════════════ MODULE 2 – CHEST ════════════════════ -->
+
+		<div class="module m2">
+			<div class="mod-left">
+				<div class="mod-num">02 / 05</div>
+				<!-- Картинка модуля (02 — Грудь): замените значение src у тега img на URL вашей иллюстрации -->
+				<img class="mod-illustration" src="image/FrontMuscle.jpg" alt="Иллюстрация модуля: грудь" width="140"
+					height="260" loading="lazy" decoding="async" />
+
+			</div>
+
+			<div class="mod-right">
+				<div class="mod-header">
+					<div class="mod-title">Грудь</div>
+					<div class="mod-sub">Большая и малая грудные мышцы</div>
+				</div>
+				<table class="ex-table">
+					<thead>
+						<tr>
+							<th>Упражнение</th>
+							<th>Подх.</th>
+							<th>Повт.</th>
+							<th>Отдых</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="ex-name">Жим гантелей на скамье 30°</div>
+								<div class="ex-note">акцент на верхнюю часть грудных</div>
+							</td>
+							<td>
+								<div class="stat">4</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">10–12</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">90 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Отжимания от пола / брусьев</div>
+								<div class="ex-note">в гравитроне, до отказа</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">MAX</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">90 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Сведение рук «Бабочка» Pec-Deck</div>
+								<div class="ex-note">изоляция грудных мышц</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Сведение в кроссовере снизу вверх</div>
+								<div class="ex-note">акцент на верхнюю часть грудных</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- ════════════════════ MODULE 3 – LEGS ════════════════════ -->
+
+		<div class="module m3">
+			<div class="mod-left">
+				<div class="mod-num">03 / 05</div>
+				<!-- Картинка модуля (03 — Ноги и ягодицы): замените значение src у тега img на URL вашей иллюстрации -->
+				<img class="mod-illustration" src="image/LegsMuscle.png" alt="Иллюстрация модуля: ноги и ягодицы" width="140"
+					height="260" loading="lazy" decoding="async" />
+
+			</div>
+
+			<div class="mod-right">
+				<div class="mod-header">
+					<div class="mod-title">Ноги и ягодицы</div>
+					<div class="mod-sub">Квадрицепс, бицепс бедра, ягодичные</div>
+				</div>
+				<table class="ex-table">
+					<thead>
+						<tr>
+							<th>Упражнение</th>
+							<th>Подх.</th>
+							<th>Повт.</th>
+							<th>Отдых</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="ex-name">Жим ногами в тренажёре</div>
+								<div class="ex-note">стопы высоко на платформе — акцент на ягодицы</div>
+							</td>
+							<td>
+								<div class="stat">4</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">120 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Болгарские сплит-приседания</div>
+								<div class="ex-note">с гантелями, задняя нога на скамье</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">10–12</div>
+								<div class="stat-sub">/ ногу</div>
+							</td>
+							<td><span class="rest-chip">90 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Сгибание ног лёжа</div>
+								<div class="ex-note">задняя поверхность бедра</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Разгибание ног сидя</div>
+								<div class="ex-note">изоляция квадрицепса</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- ════════════════════ MODULE 4 – SHOULDERS ════════════════════ -->
+
+		<div class="module m4">
+			<div class="mod-left">
+				<div class="mod-num">04 / 05</div>
+				<!-- Картинка модуля (04 — Плечи): замените значение src у тега img на URL вашей иллюстрации -->
+				<img class="mod-illustration" src="image/ShouldersMuscle.png" alt="Иллюстрация модуля: плечи" width="140"
+					height="260" loading="lazy" decoding="async" />
+
+			</div>
+
+			<div class="mod-right">
+				<div class="mod-header">
+					<div class="mod-title">Плечи</div>
+					<div class="mod-sub">Все три пучка дельтовидных мышц</div>
+				</div>
+				<table class="ex-table">
+					<thead>
+						<tr>
+							<th>Упражнение</th>
+							<th>Подх.</th>
+							<th>Повт.</th>
+							<th>Отдых</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="ex-name">Жим гантелей сидя</div>
+								<div class="ex-note">обязателен упор спины в скамью</div>
+							</td>
+							<td>
+								<div class="stat">4</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">10–12</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">90 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Махи гантелями в стороны сидя</div>
+								<div class="ex-note">сидя — исключает читинг, средняя дельта</div>
+							</td>
+							<td>
+								<div class="stat">4</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Отведение назад в «Бабочке»</div>
+								<div class="ex-note">задняя дельта, важна для осанки</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Face Pull — тяга каната к лицу</div>
+								<div class="ex-note">задняя дельта + ротаторная манжета</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">15–20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- ════════════════════ MODULE 5 – ARMS + CORE ════════════════════ -->
+
+		<div class="module m5">
+			<div class="mod-left">
+				<div class="mod-num">05 / 05</div>
+				<!-- Картинка модуля (05 — Руки и кор): замените значение src у тега img на URL вашей иллюстрации -->
+				<img class="mod-illustration" src="image/ArmsAndCoreMuscle.png" alt="Иллюстрация модуля: руки и кор" width="140"
+					height="260" loading="lazy" decoding="async" />
+
+			</div>
+
+			<div class="mod-right">
+				<div class="mod-header">
+					<div class="mod-title">Руки и кор</div>
+					<div class="mod-sub">Бицепс, трицепс, пресс и стабилизаторы</div>
+				</div>
+				<table class="ex-table">
+					<thead>
+						<tr>
+							<th>Упражнение</th>
+							<th>Подх.</th>
+							<th>Повт.</th>
+							<th>Отдых</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="ex-name">Разгибание рук с канатом</div>
+								<div class="ex-note">трицепс, верхний блок</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Подъём гантелей на бицепс</div>
+								<div class="ex-note">сидя на наклонной скамье — растяжение бицепса</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Французский жим из-за головы</div>
+								<div class="ex-note">гантель двумя руками, трицепс</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">«Молотки» на бицепс</div>
+								<div class="ex-note">нейтральный хват, бицепс + брахиалис</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">12–15</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">«Мёртвый жук» (Dead Bug)</div>
+								<div class="ex-note">глубокие мышцы кора, поясница прижата к полу</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">20</div>
+								<div class="stat-sub">раз</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="ex-name">Планка</div>
+								<div class="ex-note">ягодицы и пресс в напряжении на протяжении всего времени</div>
+							</td>
+							<td>
+								<div class="stat">3</div>
+								<div class="stat-sub">подх.</div>
+							</td>
+							<td>
+								<div class="stat">45–60</div>
+								<div class="stat-sub">сек</div>
+							</td>
+							<td><span class="rest-chip">60 сек</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div><!-- /content -->
+
+
+	<div id="exercise-modal" class="exercise-modal" aria-hidden="true">
+		<div class="exercise-modal-card" role="dialog" aria-modal="true" aria-labelledby="exercise-modal-title">
+			<div class="exercise-modal-head">
+				<div id="exercise-modal-title" class="exercise-modal-title">Упражнение</div>
+				<button id="exercise-modal-close" class="exercise-modal-close" type="button"
+					aria-label="Закрыть">&times;</button>
+			</div>
+			<div class="exercise-modal-grid">
+				<img id="exercise-modal-image" class="exercise-modal-image" alt="Техника выполнения упражнения" src="" />
+				<div class="exercise-modal-info">
+					<p id="exercise-modal-note">Описание техники</p>
+					<div class="exercise-kpis">
+						<div class="exercise-kpi">
+							<div class="exercise-kpi-label">Подходы</div>
+							<div id="exercise-modal-sets" class="exercise-kpi-value">-</div>
+						</div>
+						<div class="exercise-kpi">
+							<div class="exercise-kpi-label">Повторения</div>
+							<div id="exercise-modal-reps" class="exercise-kpi-value">-</div>
+						</div>
+						<div class="exercise-kpi">
+							<div class="exercise-kpi-label">Отдых</div>
+							<div id="exercise-modal-rest" class="exercise-kpi-value">-</div>
+						</div>
+					</div>
+					<p>Нажми на любое упражнение в карточке, чтобы быстро открыть это окно с деталями.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- FOOTER -->
+
+	<div class="page-footer"
+		style="text-align:center; padding:28px 48px 48px; border-top:1px solid var(--line); margin:0 48px;">
+		<p style="font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--ink3); font-weight:500;">
+			Разминка перед каждым модулем &nbsp;·&nbsp; Чередуй модули последовательно &nbsp;·&nbsp; Начинай новую неделю со
+			следующего
+		</p>
+	</div>
+
+
+	<script>
+		(() => {
+			const modal = document.getElementById('exercise-modal');
+			const closeBtn = document.getElementById('exercise-modal-close');
+			const titleEl = document.getElementById('exercise-modal-title');
+			const noteEl = document.getElementById('exercise-modal-note');
+			const setsEl = document.getElementById('exercise-modal-sets');
+			const repsEl = document.getElementById('exercise-modal-reps');
+			const restEl = document.getElementById('exercise-modal-rest');
+			const imageEl = document.getElementById('exercise-modal-image');
+
+			if (!modal || !closeBtn) return;
+
+			const exerciseImageMap = {
+				'Подтягивания в гравитроне': 'https://ss.sport-express.ru/userfiles/materials/173/1732042/large.jpg',
+				'Тяга верхнего блока к груди': 'https://sport-51.com/uploads/posts/2025-04/29-1.webp',
+				'Тяга нижнего блока к поясу': 'https://sport.photosota.club/uploads/posts/2023-09/1696052203_sport-photosota-club-p-gorizontalnaya-tyaga-2.jpg',
+				'Пуловер с канатной рукоятью': 'https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_69a8bcdad6a65018c496ca9b_69a8bf4a0f5a7468bd4915a1/scale_1200',
+				'Жим гантелей на скамье 30°': 'https://tutknow.ru/uploads/posts/2015-07/1436891567_zhim-ganteley-na-naklonnoy-skame.jpg',
+				'Отжимания от пола / брусьев': 'https://kyokushinkarate.news/wp-content/uploads/2010/08/Otzhimaniya-na-brusyah.jpg',
+				'Сведение рук «Бабочка» Pec-Deck': 'https://gymbot.ru/wp-content/uploads/2024/06/pec-deck-muscles-768x595-1.png',
+				'Сведение в кроссовере снизу вверх': 'https://cross-expert.com/wp-content/uploads/2017/08/svedenie-ruk-v-krossovere-s-niza.jpeg',
+				'Жим ногами в тренажёре': 'https://sport-pulse.kz/wp-content/uploads/2023/10/gym-nogami-2.jpeg',
+				'Болгарские сплит-приседания': 'https://gymbot.ru/wp-content/uploads/2024/06/ezgif-5-9c16daff9b-site-1.gif',
+				'Сгибание ног лёжа': 'https://sport96.ru/uploadedFiles/images/zamena/imgpreview_3.jpg',
+				'Разгибание ног сидя': 'https://images.satu.kz/170255907_w640_h320_silovoj-blochnyj-trenazher.jpg',
+				'Жим гантелей сидя': 'https://sport-i-zdorovie.ru/wp-content/uploads/2020/01/zhym-gnateley-sidya-transformed-1-1024x803.png',
+				'Махи гантелями в стороны сидя': 'https://sportmenu.com/uploads/store/Texts/Text1436/f40f60.jpg',
+				'Отведение назад в «Бабочке»': 'https://storage.yandexcloud.net/pabliko.files/article_cloud_image/2023/02/09/FFF_03.jpeg',
+				'Face Pull — тяга каната к лицу': 'https://gymbot.ru/wp-content/uploads/2024/06/cable-face-pull-muscles-768x361-1.png',
+				'Разгибание рук с канатом': 'https://avatars.mds.yandex.net/i?id=61203c7118105a11c16a7a6fdd5df0db668628c4-7662450-images-thumbs&n=13',
+				'Подъём гантелей на бицепс': 'https://avatars.mds.yandex.net/i?id=70a885bf2dd923f2e6e34742609194d0a6b47302-4855126-images-thumbs&n=13',
+				'Французский жим из-за головы': 'https://s0.rbk.ru/v6_top_pics/media/img/1/61/346981746361611.jpeg',
+				'«Молотки» на бицепс': 'https://stayfit.today/public/exercises/6714/1L.jpg',
+				'«Мёртвый жук» (Dead Bug)': 'https://api.smartworkout.app/asset/image/7e4b5085-db15-498d-87a8-d1ab2fc8eb9e',
+				'Планка': 'https://skillbox.ru/upload/setka_images/13033825032025_b629b7dc02fe6f5723da7d5f3dd63eb28fb5f3e4.jpg'
+			};
+
+			function resolveImage(data) {
+				const directImage = exerciseImageMap[data.name];
+				if (directImage) return directImage;
+
+				const promptParts = [
+					'fitness exercise technique guide',
+					`exercise: ${data.name}`,
+					data.note ? `details: ${data.note}` : '',
+					data.reps ? `reps: ${data.reps}` : '',
+					'clean gym interior, full body, instructional style, realistic photo'
+				].filter(Boolean);
+				const prompt = encodeURIComponent(promptParts.join(', '));
+				return `https://image.pollinations.ai/prompt/${prompt}?width=960&height=540&nologo=true&seed=42`;
+			}
+
+			function openModal(data) {
+				titleEl.textContent = data.name;
+				noteEl.textContent = data.note || 'Техника выполнения: контролируй движение, держи нейтральное положение корпуса, без рывков.';
+				setsEl.textContent = data.sets || '-';
+				repsEl.textContent = data.reps || '-';
+				restEl.textContent = data.rest || '-';
+				imageEl.src = resolveImage(data);
+				imageEl.alt = `Демонстрация упражнения: ${data.name}`;
+
+				modal.classList.add('open');
+				modal.setAttribute('aria-hidden', 'false');
+				closeBtn.focus();
+			}
+
+			function closeModal() {
+				modal.classList.remove('open');
+				modal.setAttribute('aria-hidden', 'true');
+			}
+
+			document.querySelectorAll('.ex-table tbody tr').forEach((row) => {
+				const cells = row.querySelectorAll('td');
+				if (cells.length < 4) return;
+
+				const firstCell = cells[0];
+				const nameEl = firstCell.querySelector('.ex-name');
+				if (!nameEl) return;
+
+				const noteElRow = firstCell.querySelector('.ex-note');
+				const sets = cells[1].querySelector('.stat')?.textContent?.trim() || '';
+				const reps = cells[2].querySelector('.stat')?.textContent?.trim() || '';
+				const repsSub = cells[2].querySelector('.stat-sub')?.textContent?.trim() || '';
+				const rest = cells[3].querySelector('.rest-chip')?.textContent?.trim() || '';
+
+				const trigger = document.createElement('button');
+				trigger.type = 'button';
+				trigger.className = 'ex-trigger';
+				trigger.setAttribute('aria-label', `Открыть детали упражнения: ${nameEl.textContent.trim()}`);
+				trigger.innerHTML = firstCell.innerHTML;
+				firstCell.innerHTML = '';
+				firstCell.appendChild(trigger);
+
+				const payload = {
+					name: nameEl.textContent.trim(),
+					note: noteElRow ? noteElRow.textContent.trim() : '',
+					sets,
+					reps: [reps, repsSub].filter(Boolean).join(' '),
+					rest
+				};
+
+				row.addEventListener('click', () => openModal(payload));
+				trigger.addEventListener('click', (event) => {
+					event.stopPropagation();
+					openModal(payload);
+				});
+				trigger.addEventListener('keydown', (event) => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						openModal(payload);
+					}
+				});
+			});
+
+			closeBtn.addEventListener('click', closeModal);
+			modal.addEventListener('click', (event) => {
+				if (event.target === modal) closeModal();
+			});
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+			});
+		})();
+	</script>
+
+</body>
+
+</html>
